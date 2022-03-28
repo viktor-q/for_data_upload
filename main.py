@@ -15,7 +15,7 @@ login = browser.find_element_by_id("username").send_keys("tester1")
 password = browser.find_element_by_id("password").send_keys("qwerty123")
 browser.find_element_by_xpath('/html/body/main/div[2]/form/div/div[2]/input').click()
 
-#directory with all files to upload
+# directory with all files to upload
 all_files = os.listdir('data_to_upload/e-olymp-master/0000-0999/')
 
 for file in all_files:
@@ -26,25 +26,20 @@ for file in all_files:
 
     if name_file[0][0] == "P":
         name_file[0] = name_file[0][7:11]
-
     sleep(2)
 
     body_example = browser.find_element_by_id("submit_source").send_keys(*f)
-    print("body ok")
-
     sleep(2)
 
     number_example = browser.find_element_by_id("submit_problem").send_keys(name_file[0])
-
     sleep(2)
 
     f.close()
 
     browser.find_element_by_name('submit').submit()
-    print("click ok")
-
     sleep(2)
 
-  #  browser.close()
+    # browser.close()
+    # reload page for load clear form
     browser.get('https://www.eolymp.com/ru/submissions/submit')
 

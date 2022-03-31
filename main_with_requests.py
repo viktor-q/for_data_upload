@@ -1,23 +1,52 @@
 import requests
+import os
+from time import sleep
 
-payload = {
+
+# authorise and get the token
+credentials = {
     "_username": "tester1",
     "_password": "qwerty123"
 }
 
-login_url = 'https://www.eolymp.com/ru/login'
+headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36'}
 
-to_post_data_url = 'https://www.eolymp.com/ru/submissions/submit?problem=888'
+login_url = "https://www.eolymp.com/ru/login-check"
+submit_page = "https://www.eolymp.com/ru/submissions/submit"
 
-# with requests.Session() as autorize_session:
-#     p = autorize_session.post(login_url, data=payload)
-#     cookies = p.cookies
-#     print(cookies)
+session = requests.session()
+session.headers = headers
 
-to_example_load = "submit%5Bproblem%5D=888&submit%5Bcompiler%5D=gpp&submit%5Bsource%5D=test2&submit%5B_token%5D=GQb-ZTnQTI_blYk3dAwsrEwZqfvrwjC-k5DHdw2K16w"
+session.post(login_url, data=credentials)
+resp = session.get(submit_page)
+html = resp.text
+token = html.split('name="submit[_token]" value="')[1].split('"')[0]
 
+# make upload data from files
+all_files = os.listdir('data_to_upload/e-olymp-master/0000-0999/')
+for file in all_files:
+    one_file_to_upload = 'data_to_upload/e-olymp-master/0000-0999/' + file
+    data_in_file = open(one_file_to_upload, 'r',  encoding="utf-8").read()
 
+    name_file = file.split()
 
-with requests.Session() as payload_session:
-    p = payload_session.post(to_post_data_url, data=to_example_load)
-    print(p.status_code)
+    if name_file[0][0] == "P":
+        name_file[0] = name_file[0][7:11]
+
+# post data to website
+    payload = {
+        "submit[problem]": name_file[0],
+        "submit[compiler]": "gpp",
+        "submit[source]": data_in_file,
+        "submit[_token]": token
+    }
+
+    resp = session.post(submit_page, data=payload)
+    if resp.status_code == 200:
+        print(name_file[0], "is OK")
+    elif resp.status_code != 200:
+        print(name_file[0], "is BAD")
+
+   # sleep(1)
+
+   
